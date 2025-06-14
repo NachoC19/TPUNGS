@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+
+# Base de datos SQLite local
+db.sqlite3
+
+# Archivos generados
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Documentos y presentaciones
+*.pdf
+*.pptx
+*.docx
+presentaciones/
+docs/
