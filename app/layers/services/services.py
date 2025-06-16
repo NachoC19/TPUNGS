@@ -9,13 +9,13 @@ from django.contrib.auth import get_user
 # función que devuelve un listado de cards. Cada card representa una imagen de la API de Pokemon
 def getAllImages():
     cards=[]
-    result=get_pokemon_data()
+    result=transport.get_pokemon_data()
 
     if result is None:
         return[]
     
     for p in result:
-        card=pokemon_data_to_card(p)
+        card=translator.pokemon_data_to_card(p)
         cards.append(card)
     # debe ejecutar los siguientes pasos:
     # 1) traer un listado de imágenes crudas desde la API (ver transport.py)
