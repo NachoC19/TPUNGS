@@ -8,23 +8,25 @@ from ...config import config
 def getAllImages():
     json_collection = []
     for id in range(1, 30):
-        response = requests.get(config.STUDENTS_REST_API_URL + str(id))
+        try:
+            response = requests.get(config.STUDENTS_REST_API_URL + str(id), timeout=5)
+            if not response.ok:
+                print(f"[transport.py]: error al obtener datos para el id {id}")
+                continue
 
-        # si la búsqueda no arroja resultados, entonces retornamos una lista vacía de elementos.    
-        if not response.ok:
-            print(f"[transport.py]: error al obtener datos para el id {id}")
+            raw_data = response.json()
+
+            if 'detail' in raw_data and raw_data['detail'] == 'Not found.':
+                print(f"[transport.py]: Pokémon con id {id} no encontrado.")
+                continue
+
+            json_collection.append(raw_data)
+
+        except requests.exceptions.RequestException as e:
+            print(f"[transport.py]: Error al conectar con la API (ID {id}): {e}")
             continue
-
-        raw_data = response.json()
-
-        if 'detail' in raw_data and raw_data['detail'] == 'Not found.':
-            print(f"[transport.py]: Pokémon con id {id} no encontrado.")
-            continue
-
-        json_collection.append(raw_data)
 
     return json_collection
-
 # obtiene la imagen correspodiente para un type_id especifico 
 def get_type_icon_url_by_id(type_id):
     base_url = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-iii/colosseum/'
