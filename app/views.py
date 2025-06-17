@@ -19,6 +19,14 @@ def home(request):
 def search(request):
     name = request.POST.get('query', '')
 
+    if name != '':
+        images=getAllImages(name)
+        favourite_list=[]
+
+        return render(request,'home.html', { 'images': images, 'favourite_list': favourite_list })
+    else:
+        return redirect('home')
+
     # si el usuario ingresó algo en el buscador, se deben filtrar las imágenes por dicho ingreso.
     if (name != ''):
         images = []
@@ -33,7 +41,7 @@ def filter_by_type(request):
     type = request.POST.get('type', '')
 
     if type != '':
-        images = [] # debe traer un listado filtrado de imágenes, segun si es o contiene ese tipo.
+        images = getAllImages(type=type) # debe traer un listado filtrado de imágenes, segun si es o contiene ese tipo.
         favourite_list = []
 
         return render(request, 'home.html', { 'images': images, 'favourite_list': favourite_list })
