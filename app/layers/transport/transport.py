@@ -10,10 +10,7 @@ def getAllImages():
     for id in range(1, 30):
         try:
             response = requests.get(config.STUDENTS_REST_API_URL + str(id), timeout=5)
-            if not response.ok:
-                print(f"[transport.py]: error al obtener datos para el id {id}")
-                continue
-
+            response.raise_for_status()  # lanza error si el status no es 200 OK
             raw_data = response.json()
 
             if 'detail' in raw_data and raw_data['detail'] == 'Not found.':
@@ -23,7 +20,7 @@ def getAllImages():
             json_collection.append(raw_data)
 
         except requests.exceptions.RequestException as e:
-            print(f"[transport.py]: Error al conectar con la API (ID {id}): {e}")
+            print(f"[transport.py]: Error al obtener el Pokémon con id {id}: {e}")
             continue
 
     return json_collection
