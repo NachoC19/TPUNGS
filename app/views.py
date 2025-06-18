@@ -11,24 +11,11 @@ def index_page(request):
 
 # esta función obtiene 2 listados: uno de las imágenes de la API y otro de favoritos, ambos en formato Card, y los dibuja en el template 'home.html'.
 def home(request):
-    images = services.getAllImages() 
+    images = services.getAllImages()
     favourite_list = []
 
-    grupos_evolutivos = []
-    nombres_agregados = set()
-
-    for poke in images:
-        if poke.name in nombres_agregados:
-            continue
-
-        grupo = services.get_evolution_chain(poke.name)
-        grupo_cards = [p for p in images if p.name in grupo]
-        if grupo_cards:
-            grupos_evolutivos.append(grupo_cards)
-            nombres_agregados.update(grupo)
-
     return render(request, 'home.html', {
-        'evoluciones': grupos_evolutivos,
+        'images': images,
         'favourite_list': favourite_list
     })
 # función utilizada en el buscador.

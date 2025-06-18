@@ -81,33 +81,3 @@ def get_type_icon_url_by_name(type_name):
     if not type_id:
         return None
     return transport.get_type_icon_url_by_id(type_id)
-def get_evolution_chain(pokemon_name):
-    #Obtener species
-    species_url = f"https://pokeapi.co/api/v2/pokemon-species/{pokemon_name.lower()}/"
-    response = requests.get(species_url)
-    if not response.ok:
-        return []
-
-    species_data = response.json()
-
-    #Obtener URL de la cadena evolutiva
-    evo_chain_url = species_data['evolution_chain']['url']
-    response = requests.get(evo_chain_url)
-    if not response.ok:
-        return []
-
-    evo_data = response.json()
-    
-    #Recorrer la cadena
-    chain = evo_data['chain']
-    evolution_names = []
-
-    while chain:
-        name = chain['species']['name']
-        evolution_names.append(name)
-        if chain['evolves_to']:
-            chain = chain['evolves_to'][0]
-        else:
-            chain = None
-
-    return evolution_names
