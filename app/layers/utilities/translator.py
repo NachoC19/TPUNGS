@@ -1,9 +1,19 @@
 # translator: se refiere a un componente o conjunto de funciones que se utiliza para convertir o "mapear" datos de un formato o estructura a otro. Esta conversión se realiza típicamente cuando se trabaja con diferentes capas de una aplicación, como por ejemplo, entre la capa de datos y la capa de presentación, o entre dos modelos de datos diferentes.
 import ast
 from app.layers.utilities.card import Card
+from app.layers.transport import transport
+from ...config import config
 
 # Usado cuando la información viene de la API, para transformarla en una Card.
 def fromRequestIntoCard(poke_data):
+    types = getTypes(poke_data)
+    type_icons = []
+    for t in types:
+        type_id = config.TYPE_ID_MAP.get(t.lower())
+        if type_id:
+            icon_url = transport.get_type_icon_url_by_id(type_id)
+            type_icons.append(icon_url)
+
     card = Card(
         id=poke_data.get('id'),
         name=poke_data.get('name'),
@@ -11,8 +21,9 @@ def fromRequestIntoCard(poke_data):
         weight=poke_data.get('weight'),
         base=poke_data.get('base_experience'),
         image=safe_get(poke_data, 'sprites', 'other', 'official-artwork', 'front_default'),
-        types=getTypes(poke_data)
+        types=types
     )
+    card.type_icons = type_icons
     return card
 
 # recupera los tipos del JSON

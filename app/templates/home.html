@@ -60,8 +60,8 @@
                             <div class="card-body">
                                 <h3 class="card-title pokemon-font">{{ img.name|capfirst }} #{{ img.id }}</h3>
                                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                    {% for poketype in img.types %}
-                                        <strong><em>{{ poketype }}</em></strong>
+                                    {% for icon in img.type_icons %}
+                                        <img src="{{ icon }}" alt="tipo" style="width: 32px; height: 32px;" class="me-1">
                                     {% endfor %}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
