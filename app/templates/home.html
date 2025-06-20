@@ -57,8 +57,12 @@
           </div>
           <div class="col-md-8">
             <div class="card-body">
-              <h3 class="card-title pokemon-font">{{ img.name|capfirst }} <small class="text-muted">#{{ img.id }}</small></h3>
-              
+              <h3 class="card-title pokemon-font" style="line-height: 1; margin-bottom: 0; display: flex; flex-direction: column;">
+                <span style="white-space: nowrap; font-size: clamp(1rem, 2vw, 1.5rem);">
+                    {{ img.name|capfirst }}
+                </span>
+                <small class="text-muted" style="font-size: 0.9rem;">#{{ img.id }}</small>
+                </h3>
               <!-- Tipos como imágenes -->
               <div class="mb-2">
                 {% for icon in img.type_icons %}
