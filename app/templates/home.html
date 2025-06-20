@@ -6,7 +6,7 @@
   {% endfor %}
 {% endif %}
 <main>
-    <h1 class="text-center">Buscador de Pokémon</h1>
+    <h1 class="text-center pokemon-font">Buscador de Pokémon</h1>
 
     <!-- Buscador -->
     <div class="d-flex justify-content-center mb-3">
@@ -58,7 +58,7 @@
                         </div>
                         <div class="col-md-8">
                             <div class="card-body">
-                                <h3 class="card-title">{{ img.name|capfirst }} #{{ img.id }}</h3>
+                                <h3 class="card-title pokemon-font">{{ img.name|capfirst }} #{{ img.id }}</h3>
                                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                                     {% for poketype in img.types %}
                                         <strong><em>{{ poketype }}</em></strong>

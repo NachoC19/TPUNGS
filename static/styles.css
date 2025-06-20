@@ -1,7 +1,7 @@
 body {
     color: #566787;
-    background: #f5f5f5;
-    font-family: 'Roboto', sans-serif;
+    background: #F0F8FF;
+    font-family: 'Press Start 2P','Roboto', sans-serif;
 }
 
 .table-responsive {
@@ -139,4 +139,23 @@ table.table td i {
     float: left;
     margin-top: 6px;
     font-size: 95%;
+}
+
+.card.border-success {
+    border: 3px solid #198754 !important; /* verde tipo grass */
+}
+
+.card.border-danger {
+    border: 3px solid #dc3545 !important; /* rojo tipo fire */
+}
+
+.card.border-primary {
+    border: 3px solid #0d6efd !important; /* azul tipo water */
+}
+
+.card.border-warning {
+    border: 3px solid #ffc107 !important; /* amarillo para otros */
+}
+.pokemon-font {
+    font-family: 'Press Start 2P', cursive;
 }
