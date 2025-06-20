@@ -5,7 +5,7 @@
 
   <div class="card shadow-sm p-5 border-0 mx-auto" style="max-width: 600px;">
     {% if request.user.is_authenticated %}
-      <h1 class="display-5 pokemon-font mb-3">¡Bienvenido {{ user.username|upper }}!</h1>
+      <h1 class="display-5 pokemon-font mb-3">¡Bienvenido<br>{{ user.username|upper }}!</h1>
     {% else %}
       <h1 class="display-5 pokemon-font mb-3">¡Bienvenido a la Pokédex UNGS!</h1>
     {% endif %}
@@ -20,3 +20,4 @@
 </main>
 
 {% endblock %}
+
