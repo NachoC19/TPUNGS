@@ -58,16 +58,18 @@
                         </div>
                         <div class="col-md-8">
                             <div class="card-body">
-                                <h3 class="card-title pokemon-font">{{ img.name|capfirst }} #{{ img.id }}</h3>
+                                <h3 class="card-title pokemon-font">
+                                {{ img.name|capfirst }} <br> #{{ img.id }}
+                                </h3>
                                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                                     {% for poketype in img.types %}
                                         <strong><em>{{ poketype }}</em></strong>
                                     {% endfor %}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
-                                <p class="card-text"><small class="text-body-secondary">Altura: {{ img.height }}</small></p>
-                                <p class="card-text"><small class="text-body-secondary">Peso: {{ img.weight }}</small></p>
-                                <p class="card-text"><small class="text-body-secondary">Nivel de experiencia base: {{ img.base }}</small></p>
+                                <p class="card-text pokemon-font"><small class="text-body-secondary">Altura: {{ img.height }}</small></p>
+                                <p class="card-text pokemon-font"><small class="text-body-secondary">Peso: {{ img.weight }}</small></p>
+                                <p class="card-text pokemon-font"><small class="text-body-secondary">Nivel de experiencia base: {{ img.base }}</small></p>
                             </div>
                             {% if request.user.is_authenticated %}
                             <div class="card-footer text-center">
