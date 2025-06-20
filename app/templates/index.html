@@ -1,9 +1,22 @@
-{% extends 'header.html' %} {% block content %} {% if request.user.is_authenticated %}
-<h2 class="text-center pokemon-font">Bienvenido {{ user.username | upper }}!</h2>
-{% else %}
-<h2 class="text-center pokemon-font">Bienvenido!</h2>
-{% endif %}
-<p class="text-center pokemon-font">
-    Mirá las imágenes desde <a href="{% url 'home' %}">este link.</a>
-</p>
+{% extends 'header.html' %}
+{% block content %}
+
+<main class="container py-5 text-center">
+
+  <div class="card shadow-sm p-5 border-0 mx-auto" style="max-width: 600px;">
+    {% if request.user.is_authenticated %}
+      <h1 class="display-5 pokemon-font mb-3">¡Bienvenido {{ user.username|upper }}!</h1>
+    {% else %}
+      <h1 class="display-5 pokemon-font mb-3">¡Bienvenido a la Pokédex UNGS!</h1>
+    {% endif %}
+
+    <p class="lead mb-4">
+      Este sitio te permite explorar Pokémon, filtrarlos por tipo, buscarlos por nombre y guardar tus favoritos.
+    </p>
+
+    <a href="{% url 'home' %}" class="btn btn-primary btn-lg shadow-sm">Ir al buscador</a>
+  </div>
+
+</main>
+
 {% endblock %}

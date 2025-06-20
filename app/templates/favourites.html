@@ -1,49 +1,58 @@
-{% extends 'header.html' %} {% block content %}
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-  {% endfor %}
-{% endif %}
-<div class="container-xl">
+{% extends 'header.html' %}
+{% block content %}
+
+<main class="container py-4">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <h2 class="text-center mb-4">❤️ Tus Pokémon favoritos</h2>
+
+  {% if favourite_list %}
     <div class="table-responsive">
-        <div class="table-wrapper">
-            <div class="table-title">
-                <div class="row">
-                    <div class="col-sm-8">
-                        <h2>Listado de <strong>FAVORITOS</strong></h2>
-                    </div>
-                </div>
-            </div>
-            <table class="table table-striped table-hover table-bordered">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Imagen</th>
-                        <th>Nombre</th>
-                        <th>Altura <i class="fa fa-sort"></i></th>
-                        <th>Peso</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for favourite in favourite_list %}
-                    <tr>
-                        <td>{{ favourite.id }}</td>
-                        <td><img src="{{ favourite.image }}" alt="" style="max-width: 200px; max-height: 200px;"></td>
-                        <td>{{ favourite.name }}</td>
-                        <td>{{ favourite.height }}</td>
-                        <td>{{ favourite.weight }}</td>
-                        <td>
-                            <form method="post" action="{% url 'borrar-favorito' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="id" value="{{ favourite.id }}">
-                                <button type="submit" class="btn" style="color:red"><i class="material-icons">&#xE872;</i></button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+      <table class="table table-hover align-middle shadow-sm rounded">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Imagen</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Altura</th>
+            <th scope="col">Peso</th>
+            <th scope="col">Quitar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for favourite in favourite_list %}
+          <tr>
+            <td>{{ favourite.id }}</td>
+            <td>
+              <img src="{{ favourite.image }}" alt="{{ favourite.name }}" class="img-thumbnail" style="max-width: 96px;">
+            </td>
+            <td><strong>{{ favourite.name|capfirst }}</strong></td>
+            <td>{{ favourite.height }}</td>
+            <td>{{ favourite.weight }}</td>
+            <td>
+              <form method="post" action="{% url 'borrar-favorito' %}">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ favourite.id }}">
+                <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar favorito">
+                  🗑️
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-</div>
+  {% else %}
+    <h4 class="text-center mt-5">❌ Aún no agregaste ningún Pokémon a favoritos.</h4>
+  {% endif %}
+</main>
+
 {% endblock %}
