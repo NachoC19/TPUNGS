@@ -6,19 +6,22 @@ from ...config import config
 from ..persistence import repositories
 from ..utilities import translator
 from django.contrib.auth import get_user
+from django.core.cache import cache
 import requests
 
 # función que devuelve un listado de cards. Cada card representa una imagen de la API de Pokemon
 def getAllImages():
-    cards=[]
+    cards = cache.get('poke_cards')
+    if cards is not None:
+        return cards
     result=transport.getAllImages()
-
     if result is None:
-        return[]
-    
+        return []   
+    cards=[]
     for p in result:
         card = translator.fromRequestIntoCard(p)
         cards.append(card)
+    cache.set('poke_cards', cards, timeout=600)
     # debe ejecutar los siguientes pasos:
     # 1) traer un listado de imágenes crudas desde la API (ver transport.py)
     # 2) convertir cada img. en una card.
