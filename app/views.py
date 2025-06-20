@@ -28,6 +28,8 @@ def search(request):
 
     if name != '':
         images = services.filterByCharacter(name)
+        favourite_list = Favourite.objects.filter(user=request.user)
+        favourite_ids = [str(fav.id) for fav in favourite_list]
         return render(request, 'home.html', {
         'images': images,
         'favourite_list': favourite_list,
