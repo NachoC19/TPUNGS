@@ -17,11 +17,17 @@ def home(request):
     # Definir favoritos del usuario en una lista convertida en id para poder mostrar el boton de que el favorito ya existe (modificado en home.html tambien)
     favourite_list = Favourite.objects.filter(user=request.user)
     favourite_ids = [str(fav.id) for fav in favourite_list]
+    filtro_tipos = [
+    {'tipo': 'fire', 'btn': 'danger', 'emoji': '🔥'},
+    {'tipo': 'water', 'btn': 'primary', 'emoji': '💧'},
+    {'tipo': 'grass', 'btn': 'success', 'emoji': '🌿'}
+]
+
     return render(request, 'home.html', {
-        'images': images,
-        'favourite_list': favourite_list,
-        'favourite_ids': favourite_ids,
-    })
+    'images': images,
+    'favourite_list': favourite_list,
+    'filtro_tipos': filtro_tipos
+})
 # función utilizada en el buscador.
 def search(request):
     name = request.POST.get('query', '')

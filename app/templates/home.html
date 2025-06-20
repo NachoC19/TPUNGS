@@ -1,103 +1,105 @@
 {% extends 'header.html' %} 
 {% block content %}
+
 {% if messages %}
   {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show container mt-3" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
   {% endfor %}
 {% endif %}
-<main>
-    <h1 class="text-center pokemon-font">Buscador de Pokémon</h1>
 
-    <!-- Buscador -->
-    <div class="d-flex justify-content-center mb-3">
-        <form class="d-flex" action="{% url 'buscar' %}" method="POST">
-            {% csrf_token %}
-            <input class="form-control me-2" type="search" name="query" placeholder="Pikachu, Charizard, Ditto" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Buscar</button>
-        </form>
-    </div>
+<main class="container py-4">
 
-    <!-- Filtros por tipo -->
-    <div class="d-flex justify-content-center gap-2 mb-4">
-        <form method="post" action="{% url 'filter_by_type' %}">
-            {% csrf_token %}
-            <input type="hidden" name="type" value="fire">
-            <button type="submit" class="btn btn-danger">🔥 FUEGO</button>
-        </form>
-        <form method="post" action="{% url 'filter_by_type' %}">
-            {% csrf_token %}
-            <input type="hidden" name="type" value="water">
-            <button type="submit" class="btn btn-primary">💧 AGUA</button>
-        </form>
-        <form method="post" action="{% url 'filter_by_type' %}">
-            {% csrf_token %}
-            <input type="hidden" name="type" value="grass">
-            <button type="submit" class="btn btn-success">🌿 PLANTA</button>
-        </form>
-    </div>
+  <h1 class="text-center display-4 mb-4 pokemon-font">🔎 Buscador de Pokémon</h1>
 
-    <!-- Resultados (Pokémon encontrados) -->
-    {% if images %}
-        <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
-            {% for img in images %}
-            <div class="col">
-                <div class="card mb-3 ms-3 
-                    {% if 'grass' in img.types %}
-                        border-success
-                    {% elif 'fire' in img.types %}
-                        border-danger
-                    {% elif 'water' in img.types %}
-                        border-primary
-                    {% else %}
-                        border-warning
-                    {% endif %}
-                " style="max-width: 540px;">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="{{ img.image }}" class="card-img-top" alt="{{ img.name }}">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h3 class="card-title pokemon-font">
-                                {{ img.name|capfirst }} <br> #{{ img.id }}
-                                </h3>
-                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                    {% for icon in img.type_icons %}
-                                        <img src="{{ icon }}" alt="tipo" class="me-1" style="height: 32px; width: auto;">
-                                    {% endfor %}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                                <p class="card-text pokemon-font"><small class="text-body-secondary">Altura: {{ img.height }}</small></p>
-                                <p class="card-text pokemon-font"><small class="text-body-secondary">Peso: {{ img.weight }}</small></p>
-                                <p class="card-text pokemon-font"><small class="text-body-secondary">Nivel de experiencia base: {{ img.base }}</small></p>
-                            </div>
-                            {% if request.user.is_authenticated %}
-                            <div class="card-footer text-center">
-                                <form method="post" action="{% url 'agregar-favorito' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="id" value="{{ img.id }}">
-                                    <input type="hidden" name="name" value="{{ img.name }}">
-                                    <input type="hidden" name="height" value="{{ img.height }}">
-                                    <input type="hidden" name="weight" value="{{ img.weight }}">
-                                    <input type="hidden" name="base_experience" value="{{ img.base_experience }}">
-                                    <input type="hidden" name="types" value="{{ img.types|join:',' }}">
-                                    <input type="hidden" name="image" value="{{ img.image }}">
-                                    {% if img.id|stringformat:"s" in favourite_ids %}
-                                        <button class="btn btn-sm btn-primary" disabled>✔️ Favorito</button>
-                                    {% else %}
-                                        <button class="btn btn-sm btn-primary">❤️ Agregar</button>
-                                    {% endif %}
-                                </form>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
+  <!-- Buscador -->
+<div class="d-flex justify-content-center mb-2">
+  <form class="d-flex w-100" style="max-width: 500px;" action="{% url 'buscar' %}" method="POST">
+    {% csrf_token %}
+    <input class="form-control me-2 shadow-sm" type="search" name="query" placeholder="Pikachu, Charizard, Ditto">
+    <button class="btn btn-success shadow-sm">Buscar</button>
+  </form>
+</div>
+
+<!-- Filtros justo debajo del buscador -->
+<div class="d-flex justify-content-center gap-3 mb-4">
+  {% for tipo in filtro_tipos %}
+    <form method="post" action="{% url 'filter_by_type' %}">
+      {% csrf_token %}
+      <input type="hidden" name="type" value="{{ tipo.tipo }}">
+      <button type="submit" class="btn btn-outline-{{ tipo.btn }} fw-bold shadow-sm">
+        {{ tipo.emoji }} {{ tipo.tipo|upper }}
+      </button>
+    </form>
+  {% endfor %}
+</div>
+
+  <!-- Resultados -->
+  {% if images %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
+    {% for img in images %}
+    <div class="col">
+      <div class="card shadow-sm h-100
+        {% if 'grass' in img.types %} border-success
+        {% endif %}
+        {% if 'fire' in img.types and 'grass' not in img.types %} border-danger
+        {% endif %}
+        {% if 'water' in img.types and 'grass' not in img.types and 'fire' not in img.types %} border-primary
+        {% endif %}
+        {% if 'grass' not in img.types and 'fire' not in img.types and 'water' not in img.types %} border-warning
+        {% endif %}
+      ">
+        <div class="row g-0">
+          <div class="col-md-4 d-flex align-items-center justify-content-center bg-light rounded-start">
+            <img src="{{ img.image }}" class="img-fluid p-2" alt="{{ img.name }}">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h3 class="card-title pokemon-font">{{ img.name|capfirst }} <small class="text-muted">#{{ img.id }}</small></h3>
+              
+              <!-- Tipos como imágenes -->
+              <div class="mb-2">
+                {% for icon in img.type_icons %}
+                  <img src="{{ icon }}" alt="tipo" class="me-1" style="height: 32px;">
+                {% endfor %}
+              </div>
+
+              <p class="card-text"><small class="text-muted">Altura:</small> {{ img.height }}</p>
+              <p class="card-text"><small class="text-muted">Peso:</small> {{ img.weight }}</p>
+              <p class="card-text"><small class="text-muted">Exp. base:</small> {{ img.base }}</p>
             </div>
-            {% endfor %}
+            
+            <!-- Favoritos -->
+            {% if request.user.is_authenticated %}
+            <div class="card-footer bg-white border-top-0 text-center">
+              <form method="post" action="{% url 'agregar-favorito' %}">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ img.id }}">
+                <input type="hidden" name="name" value="{{ img.name }}">
+                <input type="hidden" name="height" value="{{ img.height }}">
+                <input type="hidden" name="weight" value="{{ img.weight }}">
+                <input type="hidden" name="base_experience" value="{{ img.base_experience }}">
+                <input type="hidden" name="types" value="{{ img.types|join:',' }}">
+                <input type="hidden" name="image" value="{{ img.image }}">
+                {% if img.id|stringformat:"s" in favourite_ids %}
+                  <button class="btn btn-sm btn-outline-primary" disabled>✔️ Favorito</button>
+                {% else %}
+                  <button class="btn btn-sm btn-outline-primary">❤️ Agregar</button>
+                {% endif %}
+              </form>
+            </div>
+            {% endif %}
+          </div>
         </div>
-    {% else %}
-        <h2 class="text-center">La búsqueda no arrojó resultados...</h2>
-    {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <h2 class="text-center mt-5">❌ La búsqueda no arrojó resultados...</h2>
+  {% endif %}
+
 </main>
 {% endblock %}
