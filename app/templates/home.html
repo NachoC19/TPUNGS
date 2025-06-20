@@ -88,9 +88,9 @@
                 <input type="hidden" name="types" value="{{ img.types|join:',' }}">
                 <input type="hidden" name="image" value="{{ img.image }}">
                 {% if img.id|stringformat:"s" in favourite_ids %}
-                  <button class="btn btn-sm btn-outline-primary" disabled>✔️ Favorito</button>
+                  <button class="btn btn-sm btn-primary" disabled>✔️ Favorito</button>
                 {% else %}
-                  <button class="btn btn-sm btn-outline-primary">❤️ Agregar</button>
+                  <button class="btn btn-sm btn-primary">❤️ Agregar</button>
                 {% endif %}
               </form>
             </div>

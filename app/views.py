@@ -26,6 +26,7 @@ def home(request):
     return render(request, 'home.html', {
     'images': images,
     'favourite_list': favourite_list,
+    'favourite_ids': favourite_ids,
     'filtro_tipos': filtro_tipos
 })
 # función utilizada en el buscador.
