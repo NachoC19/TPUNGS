@@ -2,6 +2,10 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 
+
+urlpatterns = [
+    path('registrarse/', views.registrar_usuario, name='registrarse'),
+]
 urlpatterns = [
     path('', views.index_page, name='index-page'),
     path('login/', views.index_page, name='login'),
