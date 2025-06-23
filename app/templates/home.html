@@ -2,15 +2,15 @@
 {% block content %}
 
 {% if messages %}
-<script>
+  <script>
     document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('spinner-overlay').style.display = 'flex';
         setTimeout(() => {
             document.getElementById('spinner-overlay').style.display = 'none';
-        }, 1500); // lo oculta después de 1.5 segundos
+        }, 1500);
     });
   </script>
-{% endif %}
+
   {% for message in messages %}
     <div class="alert alert-{{ message.tags }} alert-dismissible fade show container mt-3" role="alert">
       {{ message }}
