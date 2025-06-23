@@ -1,3 +1,139 @@
+from django.shortcuts import redirect, render
+from .layers.services import services
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from .models import Favourite
+from django.contrib import messages
+from django.contrib.auth.models import User
+
+def registrar_usuario(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        if not username or not password:
+            messages.error(request, 'Usuario y contraseña son obligatorios.')
+        elif User.objects.filter(username=username).exists():
+            messages.error(request, 'Ese nombre de usuario ya existe.')
+        else:
+            User.objects.create_user(username=username, password=password)
+            messages.success(request, 'Usuario registrado exitosamente.')
+            return redirect('login')
+    return render(request, 'registro.html')
+
+
+def index_page(request):
+    return render(request, 'index.html')
+
+
+def home(request):
+    images = services.getAllImages()
+    filtro_tipos = [
+        {'tipo': 'fire', 'btn': 'danger', 'emoji': '🔥'},
+        {'tipo': 'water', 'btn': 'primary', 'emoji': '💧'},
+        {'tipo': 'grass', 'btn': 'success', 'emoji': '🌿'}
+    ]
+
+    if request.user.is_authenticated:
+        favourite_list = Favourite.objects.filter(user=request.user)
+        favourite_ids = [str(fav.id) for fav in favourite_list]
+        return render(request, 'home.html', {
+            'images': images,
+            'favourite_list': favourite_list,
+            'favourite_ids': favourite_ids,
+            'filtro_tipos': filtro_tipos
+        })
+
+    return render(request, 'home.html', {
+        'images': images,
+        'filtro_tipos': filtro_tipos
+    })
+
+
+def search(request):
+    if request.method == 'POST':
+        name = request.POST.get('query', '').strip()
+        if name:
+            images = services.filterByCharacter(name)
+            favourite_list = []
+            favourite_ids = []
+            if request.user.is_authenticated:
+                favourite_list = Favourite.objects.filter(user=request.user)
+                favourite_ids = [str(fav.id) for fav in favourite_list]
+            return render(request, 'home.html', {
+                'images': images,
+                'favourite_list': favourite_list,
+                'favourite_ids': favourite_ids,
+            })
+    return redirect('home')
+
+
+def filter_by_type(request):
+    if request.method == "POST":
+        tipo = request.POST.get("type")
+        images = services.filterByType(tipo)
+        favourite_list = []
+        favourite_ids = []
+        if request.user.is_authenticated:
+            favourite_list = Favourite.objects.filter(user=request.user)
+            favourite_ids = [str(fav.id) for fav in favourite_list]
+        return render(request, "home.html", {
+            "images": images,
+            "favourite_list": favourite_list,
+            "favourite_ids": favourite_ids,
+        })
+    else:
+        return redirect("home")
+
+
+@login_required
+def getAllFavouritesByUser(request):
+    favourite_list = Favourite.objects.filter(user=request.user)
+    return render(request, 'favourites.html', {'favourite_list': favourite_list})
+
+
+@login_required
+def saveFavourite(request):
+    if request.method == 'POST':
+        # Evitar crear favorito duplicado, podés agregar lógica si querés
+        poke_id = request.POST.get('id')
+        exists = Favourite.objects.filter(user=request.user, id=poke_id).exists()
+        if not exists:
+            Favourite.objects.create(
+                id=poke_id,
+                name=request.POST.get('name'),
+                height=request.POST.get('height'),
+                weight=request.POST.get('weight'),
+                types=request.POST.get('types'),  # cuidado con getlist si no mandás array
+                image=request.POST.get('image'),
+                user=request.user
+            )
+            nombre = request.POST.get('name')
+            messages.success(request, f"✔️ Se agregó el pokemon {nombre} a tus favoritos.")
+        else:
+            messages.info(request, f"El pokemon ya está en tus favoritos.")
+    return redirect('buscar')
+
+
+@login_required
+def deleteFavourite(request):
+    if request.method == 'POST':
+        poke_id = request.POST.get('id')
+        favourite = Favourite.objects.filter(user=request.user, id=poke_id).first()
+        if favourite:
+            nombre = favourite.name
+            favourite.delete()
+            messages.success(request, f"❌ Se eliminó el pokemon {nombre} de tus favoritos.")
+        else:
+            messages.error(request, "No se encontró ese favorito.")
+    return redirect('favoritos')
+
+
+@login_required
+def exit(request):
+    logout(request)
+    return redirect('home')
+
+
 # capa de vista/presentación
 
 from django.shortcuts import redirect, render
@@ -8,95 +144,20 @@ from django.contrib.auth import logout
 from .models import Favourite
 from django.contrib import messages #SE importa para enviar el mensaje de ya esta en favoritos
 
-def index_page(request):
-    return render(request, 'index.html')
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib import messages
 
-# esta función obtiene 2 listados: uno de las imágenes de la API y otro de favoritos, ambos en formato Card, y los dibuja en el template 'home.html'.
-def home(request):
-    images = services.getAllImages()
-    # Definir favoritos del usuario en una lista convertida en id para poder mostrar el boton de que el favorito ya existe (modificado en home.html tambien)
-    filtro_tipos = [
-    {'tipo': 'fire', 'btn': 'danger', 'emoji': '🔥'},
-    {'tipo': 'water', 'btn': 'primary', 'emoji': '💧'},
-    {'tipo': 'grass', 'btn': 'success', 'emoji': '🌿'}
-]
-
-    if request.user.is_authenticated:
-        favourite_list = Favourite.objects.filter(user=request.user)
-        favourite_ids = [str(fav.id) for fav in favourite_list]
-        return render(request, 'home.html', {
-        'images': images,
-        'favourite_list': favourite_list,
-        'favourite_ids': favourite_ids,
-        'filtro_tipos': filtro_tipos
-})
-
-    return render(request, 'home.html', {
-    'images': images,
-    'filtro_tipos': filtro_tipos
-})
-# función utilizada en el buscador.
-def search(request):
-    name = request.POST.get('query', '')
-
-    if name != '':
-        images = services.filterByCharacter(name)
-        favourite_list = Favourite.objects.filter(user=request.user)
-        favourite_ids = [str(fav.id) for fav in favourite_list]
-        return render(request, 'home.html', {
-        'images': images,
-        'favourite_list': favourite_list,
-        'favourite_ids': favourite_ids,  
-        })
-    return redirect('home')
-# función utilizada para filtrar por el tipo del Pokemon
-def filter_by_type(request):
-    if request.method == "POST":
-        type = request.POST.get("type")
-        images = services.filterByType(type)
-        favourite_list = []
-
-        return render(request, "home.html", { "images": images, "favourite_list": favourite_list })
-    else:
-        return redirect("home")
-
-# Estas funciones se usan cuando el usuario está logueado en la aplicación.
-@login_required
-# Aca desarrolle la funcion de getallfavouritesbyuser, use el if porque a veces encontraba errores con el tema del objeto favourite , tambien se anadio el import .models favourite
-#ya que mostraba error de favourite no esta definido
-def getAllFavouritesByUser(request):
-    if request.method=='GET': 
-        favourite_list = Favourite.objects.filter(user=request.user)
-        return render(request, 'favourites.html', {'favourite_list': favourite_list})
-    else:
-        return redirect('home')
-#desarrollo de la funcion guardar un favorito para la cual ya hay un boton, se uso el import message para dar el mensaje de favorito agregado y favorito pre existente 
-#Luego de desarrollar el boton dinamico, ya no es necesario el mensaje de favorito pre existente y se elimino el messages.warning
-@login_required
-def saveFavourite(request):
+def registrar_usuario(request):
     if request.method == 'POST':
-        Favourite.objects.create(
-            id=request.POST.get('id'),
-            name=request.POST.get('name'),
-            height=request.POST.get('height'),
-            weight=request.POST.get('weight'),
-            types=request.POST.getlist('types[]'),  
-            image=request.POST.get('image'),
-            user=request.user
-        )
-        nombre=request.POST.get('name')
-        messages.success(request, f"✔️ Se agrego el pokemon {nombre} a tus favoritos.")
-    return redirect('buscar')
-@login_required
-def deleteFavourite(request):
-    if request.method == 'POST':
-        poke_id = request.POST.get('id')  
-        favourite = Favourite.objects.filter(user=request.user, id=poke_id).first()
-        nombre = favourite.name  
-        Favourite.objects.filter(user=request.user, id=poke_id).delete()
-        messages.success(request, f"❌ Se elimino el pokemon {nombre} de tus favoritos.")
-    return redirect('favoritos')  
-@login_required
-def exit(request):
-    logout(request)
-    return redirect('home')
+        username = request.POST['username']
+        password = request.POST['password']
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Ese nombre de usuario ya existe.')
+        else:
+            User.objects.create_user(username=username, password=password)
+            messages.success(request, 'Usuario registrado exitosamente.')
+            return redirect('login')
+    return render(request, 'registro.html')
+
+
