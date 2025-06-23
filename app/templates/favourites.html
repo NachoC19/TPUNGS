@@ -54,5 +54,14 @@
     <h4 class="text-center mt-5">❌ Aún no agregaste ningún Pokémon a favoritos.</h4>
   {% endif %}
 </main>
-
+<div id="spinner" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 9999;">
+  <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+</div>
+<script>
+  window.addEventListener('beforeunload', function () {
+    document.getElementById('spinner').classList.remove('d-none');
+  });
+</script>
 {% endblock %}

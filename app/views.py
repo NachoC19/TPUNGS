@@ -11,7 +11,7 @@ def registrar_usuario(request):
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '').strip()
         if not username or not password:
-            messages.error(request, 'Usuario y contraseña son obligatorios.')
+            messages.error(request, 'Se requiere de usuario y contraseña.')
         elif User.objects.filter(username=username).exists():
             messages.error(request, 'Ese nombre de usuario ya existe.')
         else:
@@ -35,7 +35,7 @@ def home(request):
 
     if request.user.is_authenticated:
         favourite_list = Favourite.objects.filter(user=request.user)
-        favourite_ids = [str(fav.id) for fav in favourite_list]
+        favourite_ids = [str(fav.poke_id) for fav in favourite_list]
         return render(request, 'home.html', {
             'images': images,
             'favourite_list': favourite_list,
@@ -94,16 +94,21 @@ def getAllFavouritesByUser(request):
 @login_required
 def saveFavourite(request):
     if request.method == 'POST':
-        # Evitar crear favorito duplicado, podés agregar lógica si querés
-        poke_id = request.POST.get('id')
-        exists = Favourite.objects.filter(user=request.user, id=poke_id).exists()
+        poke_id_str = request.POST.get('id')
+        try:
+            poke_id = int(poke_id_str)
+        except (TypeError, ValueError):
+            messages.error(request, "ID de Pokémon inválido.")
+            return redirect('buscar')
+
+        exists = Favourite.objects.filter(user=request.user, poke_id=poke_id).exists()
         if not exists:
             Favourite.objects.create(
-                id=poke_id,
+                poke_id=poke_id,
                 name=request.POST.get('name'),
                 height=request.POST.get('height'),
                 weight=request.POST.get('weight'),
-                types=request.POST.get('types'),  # cuidado con getlist si no mandás array
+                types=request.POST.get('types'), 
                 image=request.POST.get('image'),
                 user=request.user
             )
@@ -132,32 +137,4 @@ def deleteFavourite(request):
 def exit(request):
     logout(request)
     return redirect('home')
-
-
-# capa de vista/presentación
-
-from django.shortcuts import redirect, render
-from .layers.services import services
-from .layers.services.services import getAllImages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
-from .models import Favourite
-from django.contrib import messages #SE importa para enviar el mensaje de ya esta en favoritos
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib import messages
-
-def registrar_usuario(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Ese nombre de usuario ya existe.')
-        else:
-            User.objects.create_user(username=username, password=password)
-            messages.success(request, 'Usuario registrado exitosamente.')
-            return redirect('login')
-    return render(request, 'registro.html')
-
 

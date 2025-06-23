@@ -1,9 +1,17 @@
-{% extends 'base.html' %}
-{% load static %}
-
+{% extends 'header.html' %}
 {% block content %}
-<div class="container mt-5">
-    <h2>Registro</h2>
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show container mt-3" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+{% endif %}
+<main>
+<div class="container mt-5" style="text-align: center;">
+    <h2>Registrate</h2>
+    <p>Crea un usuario y Contraseña</p> 
     <form id="registro-form" method="POST">
         {% csrf_token %}
         <div class="mb-3">
@@ -15,34 +23,15 @@
         <button type="submit" class="btn btn-primary">Registrarse</button>
     </form>
 </div>
-
-<!-- Spinner -->
-<div id="spinner-container" style="display: none; position: fixed; 
-    top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0, 0, 0, 0.5); 
-    z-index: 9999; justify-content: center; align-items: center; display: none;">
-    <div class="spinner" style="
-        border: 6px solid #f3f3f3;
-        border-top: 6px solid #000;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        animation: spin 1s linear infinite;
-    "></div>
+</main>
+<div id="spinner" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 9999;">
+  <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
 </div>
-
-<style>
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-</style>
-{% endblock %}
-
-{% block extra_scripts %}
 <script>
-    document.getElementById('registro-form').addEventListener('submit', function () {
-        document.getElementById('spinner-container').style.display = 'flex';
-    });
+  window.addEventListener('beforeunload', function () {
+    document.getElementById('spinner').classList.remove('d-none');
+  });
 </script>
 {% endblock %}
